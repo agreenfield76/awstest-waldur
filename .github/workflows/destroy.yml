@@ -1,0 +1,47 @@
+name: Destroy research EC2 (manual POC)
+on:
+  workflow_dispatch:
+    inputs:
+      resource_uuid:
+        description: Exact state key used for provisioning
+        required: true
+        type: string
+permissions:
+  id-token: write
+  contents: read
+concurrency:
+  group: ec2-${{ inputs.resource_uuid }}
+  cancel-in-progress: false
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+    environment: aws-poc-destroy
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Initialize state
+        working-directory: terraform
+        env:
+          RESOURCE_UUID: ${{ inputs.resource_uuid }}
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+        run: |
+          if ! [[ "$RESOURCE_UUID" =~ ^[a-zA-Z0-9-]{1,64}$ ]]; then exit 1; fi
+          terraform init -backend-config="bucket=$TF_STATE_BUCKET" -backend-config="key=waldur/${RESOURCE_UUID}/terraform.tfstate" -backend-config="region=$AWS_REGION" -backend-config="encrypt=true"
+      - name: Destroy EC2 instance
+        working-directory: terraform
+        env:
+          TF_VAR_aws_region: ${{ vars.AWS_REGION }}
+          TF_VAR_subnet_id: ${{ vars.AWS_SUBNET_ID }}
+          TF_VAR_security_group_id: ${{ vars.AWS_SECURITY_GROUP_ID }}
+          TF_VAR_ami_id: ${{ vars.AWS_AMI_ID }}
+          TF_VAR_instance_name: placeholder
+          TF_VAR_instance_type: t3.micro
+          TF_VAR_waldur_resource_uuid: ${{ inputs.resource_uuid }}
+        run: terraform destroy -auto-approve
