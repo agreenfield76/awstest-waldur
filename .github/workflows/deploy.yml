@@ -50,7 +50,6 @@ jobs:
           TF_VAR_aws_region: ${{ vars.AWS_REGION }}
           TF_VAR_subnet_id: ${{ vars.AWS_SUBNET_ID }}
           TF_VAR_security_group_id: ${{ vars.AWS_SECURITY_GROUP_ID }}
-          TF_VAR_ami_id: ${{ vars.AWS_AMI_ID }}
           TF_VAR_instance_name: ${{ inputs.instance_name }}
           TF_VAR_instance_type: ${{ inputs.instance_type }}
           TF_VAR_waldur_resource_uuid: ${{ inputs.resource_uuid }}
