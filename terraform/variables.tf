@@ -1,7 +1,6 @@
 variable "aws_region" { type = string }
 variable "subnet_id" { type = string }
 variable "security_group_id" { type = string }
-variable "ami_id" { type = string }
 variable "waldur_resource_uuid" { type = string }
 variable "instance_name" {
   type = string
