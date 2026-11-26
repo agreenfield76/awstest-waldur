@@ -1,13 +1,25 @@
 terraform {
-  required_version = ">= 1.6.0"
+  required_version = ">= 1.10.0"
+
   required_providers {
-    aws = { source = "hashicorp/aws", version = "~> 5.0" }
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
   }
-  backend "s3" {}
+
+  backend "s3" {
+    use_lockfile = true
+  }
 }
+
 provider "aws" {
   region = var.aws_region
+
   default_tags {
-    tags = { ManagedBy = "terraform", System = "waldur-poc" }
+    tags = {
+      ManagedBy = "terraform"
+      System    = "waldur-poc"
+    }
   }
 }
