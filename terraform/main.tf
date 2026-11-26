@@ -1,5 +1,5 @@
 resource "aws_instance" "research" {
-  ami                    = var.ami_id
+  ami                    = "ami-07bf19f3b07fa1602"
   instance_type          = var.instance_type
   subnet_id              = var.subnet_id
   vpc_security_group_ids = [var.security_group_id]
